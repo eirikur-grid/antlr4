@@ -271,6 +271,18 @@ class TokenStreamRewriter {
         return m;
     }
 
+    catOpText(a, b) {
+        let x = "";
+        let y = "";
+        if (a != null) {
+            x = a.toString();
+        }
+        if (b != null) {
+            y = b.toString();
+        }
+        return x + y;
+    }
+
     /** Get all operations before an index of a particular kind */
     getKindOfOps(rewrites, kind, before) {
         let ops = [];

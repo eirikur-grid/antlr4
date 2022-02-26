@@ -200,3 +200,100 @@ test("Inserting into a replaced segment should fail", () => {
     // Assert
     expect(() => rewriter.getText()).toThrow("insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]:\"x\">");
 });
+
+test("Insert then replace same index", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.insertBefore(0, "0");
+    rewriter.replaceSingle(0, "x");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("0xbc");
+});
+
+test("Insert twice before middle index", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.insertBefore(1, "x");
+    rewriter.insertBefore(1, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("ayxbc");
+});
+
+test("Insert twice before first index, then replace it", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.insertBefore(0, "x");
+    rewriter.insertBefore(0, "y");
+    rewriter.replaceSingle(0, "z");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("yxzbc");
+});
+
+test("Replace, then insert before last index", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replaceSingle(2, "x");
+    rewriter.insertBefore(2, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("abyx");
+});
+
+test("Replace, then insert after last index", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replaceSingle(2, "x");
+    rewriter.insertAfter(2, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("abxy");
+});
+
+test("Replace range, then insert at left edge", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abcccba");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replace(2, 4, "x");
+    rewriter.insertBefore(2, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("abyxba");
+});
