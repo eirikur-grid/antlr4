@@ -41,10 +41,12 @@ abc.A = 1;
 abc.B = 2;
 abc.C = 3;
 
-test('Insert before index 0', () => {
-    const chars = new antlr4.InputStream('abc');
+test("Insert before index 0", () => {
+    const chars = new antlr4.InputStream("abc");
     const lexer = new abc(chars);
     const tokens = new antlr4.CommonTokenStream(lexer);
     tokens.fill();
     const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    rewriter.insertBefore(0, "0");
+    expect(rewriter.getText()).toEqual("0abc");
 });
