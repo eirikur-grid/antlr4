@@ -12,6 +12,10 @@ class TokenStreamRewriter {
         this.programs = new Map();
     }
 
+    getTokenStream() {
+        return this.tokens;
+    }
+
     insertAfter(tokenOrIndex, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
         let index;
         if (typeof tokenOrIndex === "number") {

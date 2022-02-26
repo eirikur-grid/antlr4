@@ -1,4 +1,4 @@
-import antlr4 from "../antlr4/index.js";
+import antlr4, { Interval } from "../antlr4/index.js";
 import abc from "./generatedCode/abc";
 import calc from "./generatedCode/calc";
 
@@ -102,8 +102,12 @@ test("getText() with different start/stop arguments", () => {
     const rewriter = new antlr4.TokenStreamRewriter(tokens);
 
     // Act
-
+    rewriter.replace(4, 8, "0"); // replace 3 * 0 with 0
+    tokens.fill(); // is this needed?
 
     // Assert
-
+    expect(rewriter.getTokenStream().getText()).toEqual("x = 3 * 0;");
+    expect(rewriter.getText()).toEqual("x = 0;");
+    expect(rewriter.getText(new Interval(0, 9))).toEqual("x = 0;");
+    expect(rewriter.getText(new Interval(4, 8))).toEqual("0");
 });
