@@ -39,6 +39,30 @@ class TokenStreamRewriter {
         rewrites.push(op);
     }
 
+    replaceSingle(index, text) {
+        if (typeof index === "number") {
+            this.replace(index, index, text);
+        }
+        else {
+            this.replace(index, index, text);
+        }
+    }
+
+    replace(from, to, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
+        if (typeof from !== "number") {
+            from = from.tokenIndex;
+        }
+        if (typeof to !== "number") {
+            to = to.tokenIndex;
+        }
+        if (from > to || from < 0 || to < 0 || to >= this.tokens.size) {
+            throw new RangeError(`replace: range invalid: ${from}..${to}(size=${this.tokens.size})`);
+        }
+        let rewrites = this.getProgram(programName);
+        let op = new ReplaceOp(this.tokens, from, to, rewrites.length, text);
+        rewrites.push(op);
+    }
+
     getProgram(name) {
         let is = this.programs.get(name);
         if (is == null) {
