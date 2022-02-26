@@ -184,3 +184,19 @@ test("Replace, then delete middle index", () => {
     // Assert
     expect(rewriter.getText()).toEqual("ac");
 });
+
+test("Inserting into a replaced segment should fail", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replace(0, 2, "x");
+    rewriter.insertBefore(1, "0");
+
+    // Assert
+    expect(() => rewriter.getText()).toThrow("insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]:\"x\">");
+});

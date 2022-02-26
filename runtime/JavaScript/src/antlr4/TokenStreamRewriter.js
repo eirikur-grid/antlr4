@@ -1,6 +1,7 @@
 const { Token } = require('./Token');
 const { Interval } = require("./IntervalSet");
 
+// TODO: run this through eslint
 class TokenStreamRewriter {
     static DEFAULT_PROGRAM_NAME = "default";
 
@@ -300,7 +301,7 @@ class RewriteOperation {
     }
 
     toString() {
-        const opName = this.constructor.name;
+        let opName = this.constructor.name;
         const $index = opName.indexOf("$");
         opName = opName.substring($index + 1, opName.length);
         return "<" + opName + "@" + this.tokens.get(this.index) +
