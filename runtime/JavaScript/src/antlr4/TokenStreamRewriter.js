@@ -12,6 +12,20 @@ class TokenStreamRewriter {
         this.programs = new Map();
     }
 
+    insertAfter(tokenOrIndex, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
+        let index;
+        if (typeof tokenOrIndex === "number") {
+            index = tokenOrIndex;
+        } else {
+            index = tokenOrIndex.tokenIndex;
+        }
+
+        // to insert after, just insert before next index (even if past end)
+        let rewrites = this.getProgram(programName);
+        let op = new InsertAfterOp(this.tokens, index, rewrites.length, text);
+        rewrites.push(op);
+    }
+
     insertBefore(tokenOrIndex, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
         let index;
         if (typeof tokenOrIndex === "number") {
@@ -265,6 +279,12 @@ class InsertBeforeOp extends RewriteOperation {
             buf.push(String(this.tokens.get(this.index).text));
         }
         return this.index + 1;
+    }
+}
+
+class InsertAfterOp extends InsertBeforeOp {
+    constructor(tokens, index, instructionIndex, text) {
+        super(tokens, index + 1, instructionIndex, text); // insert after is insert before index+1
     }
 }
 

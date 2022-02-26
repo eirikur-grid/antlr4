@@ -50,3 +50,13 @@ test("Insert before index 0", () => {
     rewriter.insertBefore(0, "0");
     expect(rewriter.getText()).toEqual("0abc");
 });
+
+test("Insert after last index", () => {
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    rewriter.insertAfter(2, "x");
+    expect(rewriter.getText()).toEqual("abcx");
+});
