@@ -93,7 +93,7 @@ test("Replace middle index", () => {
     expect(rewriter.getText()).toEqual("axc");
 });
 
-test("getText() with different start/stop arguments", () => {
+test("getText() with different start/stop arguments (1 of 2)", () => {
     // Arrange
     const chars = new antlr4.InputStream("x = 3 * 0;");
     const lexer = new calc(chars);
@@ -103,11 +103,35 @@ test("getText() with different start/stop arguments", () => {
 
     // Act
     rewriter.replace(4, 8, "0"); // replace 3 * 0 with 0
-    tokens.fill(); // is this needed?
 
     // Assert
     expect(rewriter.getTokenStream().getText()).toEqual("x = 3 * 0;");
     expect(rewriter.getText()).toEqual("x = 0;");
     expect(rewriter.getText(new Interval(0, 9))).toEqual("x = 0;");
     expect(rewriter.getText(new Interval(4, 8))).toEqual("0");
+});
+
+test("getText() with different start/stop arguments (2 of 2)", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("x = 3 * 0 + 2 * 0;");
+    const lexer = new calc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act/Assert
+    expect(rewriter.getTokenStream().getText()).toEqual("x = 3 * 0 + 2 * 0;");
+
+    rewriter.replace(4, 8, "0"); // replace 3 * 0 with 0
+
+    expect(rewriter.getText()).toEqual("x = 0 + 2 * 0;");
+    expect(rewriter.getText(new Interval(0, 17))).toEqual("x = 0 + 2 * 0;");
+    expect(rewriter.getText(new Interval(4, 8))).toEqual("0");
+    expect(rewriter.getText(new Interval(0, 8))).toEqual("x = 0");
+    expect(rewriter.getText(new Interval(12, 16))).toEqual("2 * 0");
+
+    rewriter.insertAfter(17, "// comment");
+
+    expect(rewriter.getText(new Interval(12, 18))).toEqual("2 * 0;// comment");
+    expect(rewriter.getText(new Interval(0, 8))).toEqual("x = 0");
 });
