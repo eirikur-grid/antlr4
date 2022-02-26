@@ -2,13 +2,23 @@ import antlr4, { Interval } from "../antlr4/index.js";
 import abc from "./generatedCode/abc";
 import calc from "./generatedCode/calc";
 
-test("Insert before index 0", () => {
-    // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
+/**
+ * 
+ * @param {import("../antlr4/index").Lexer} lexerClass 
+ * @param {string} input 
+ * @returns {import("../antlr4/index").TokenStreamRewriter}
+ */
+function getRewriter(lexerClass, input) {
+    const chars = new antlr4.InputStream(input);
+    const lexer = new lexerClass(chars);
     const tokens = new antlr4.CommonTokenStream(lexer);
     tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    return new antlr4.TokenStreamRewriter(tokens);
+}
+
+test("Insert before index 0", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.insertBefore(0, "0");
@@ -19,11 +29,7 @@ test("Insert before index 0", () => {
 
 test("Insert after last index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.insertAfter(2, "x");
@@ -34,11 +40,7 @@ test("Insert after last index", () => {
 
 test("Insert before and after middle index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.insertBefore(1, "x");
@@ -50,11 +52,7 @@ test("Insert before and after middle index", () => {
 
 test("Replace index 0", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replaceSingle(0, "x");
@@ -65,11 +63,7 @@ test("Replace index 0", () => {
 
 test("Replace last index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replaceSingle(2, "x");
@@ -80,11 +74,7 @@ test("Replace last index", () => {
 
 test("Replace middle index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replaceSingle(1, "x");
@@ -95,11 +85,7 @@ test("Replace middle index", () => {
 
 test("getText() with different start/stop arguments (1 of 2)", () => {
     // Arrange
-    const chars = new antlr4.InputStream("x = 3 * 0;");
-    const lexer = new calc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(calc, "x = 3 * 0;");
 
     // Act
     rewriter.replace(4, 8, "0"); // replace 3 * 0 with 0
@@ -113,11 +99,7 @@ test("getText() with different start/stop arguments (1 of 2)", () => {
 
 test("getText() with different start/stop arguments (2 of 2)", () => {
     // Arrange
-    const chars = new antlr4.InputStream("x = 3 * 0 + 2 * 0;");
-    const lexer = new calc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(calc, "x = 3 * 0 + 2 * 0;");
 
     // Act/Assert
     expect(rewriter.getTokenStream().getText()).toEqual("x = 3 * 0 + 2 * 0;");
@@ -138,11 +120,7 @@ test("getText() with different start/stop arguments (2 of 2)", () => {
 
 test("Replace middle index, twice", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replaceSingle(1, "x");
@@ -154,11 +132,7 @@ test("Replace middle index, twice", () => {
 
 test("Insert before, then replace twice", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.insertBefore(0, "_");
@@ -171,11 +145,7 @@ test("Insert before, then replace twice", () => {
 
 test("Replace, then delete middle index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replaceSingle(1, "x");
@@ -187,27 +157,21 @@ test("Replace, then delete middle index", () => {
 
 test("Inserting into a replaced segment should fail", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replace(0, 2, "x");
     rewriter.insertBefore(1, "0");
 
     // Assert
-    expect(() => rewriter.getText()).toThrow("insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]:\"x\">");
+    expect(() => rewriter.getText()).toThrow(
+        "insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]:\"x\">"
+    );
 });
 
 test("Insert then replace same index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.insertBefore(0, "0");
@@ -219,11 +183,7 @@ test("Insert then replace same index", () => {
 
 test("Insert twice before middle index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.insertBefore(1, "x");
@@ -235,11 +195,7 @@ test("Insert twice before middle index", () => {
 
 test("Insert twice before first index, then replace it", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.insertBefore(0, "x");
@@ -252,11 +208,7 @@ test("Insert twice before first index, then replace it", () => {
 
 test("Replace, then insert before last index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replaceSingle(2, "x");
@@ -268,11 +220,7 @@ test("Replace, then insert before last index", () => {
 
 test("Replace, then insert after last index", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abc");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abc");
 
     // Act
     rewriter.replaceSingle(2, "x");
@@ -284,11 +232,7 @@ test("Replace, then insert after last index", () => {
 
 test("Replace range, then insert at left edge", () => {
     // Arrange
-    const chars = new antlr4.InputStream("abcccba");
-    const lexer = new abc(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    tokens.fill();
-    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+    const rewriter = getRewriter(abc, "abcccba");
 
     // Act
     rewriter.replace(2, 4, "x");
@@ -296,4 +240,337 @@ test("Replace range, then insert at left edge", () => {
 
     // Assert
     expect(rewriter.getText()).toEqual("abyxba");
+});
+
+test("Replace range, then insert before right edge", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcccba");
+
+    // Act
+    rewriter.replace(2, 4, "x");
+    rewriter.insertBefore(4, "y");
+
+    // Assert
+    expect(() => rewriter.getText()).toThrow(
+        "insert op <InsertBeforeOp@[@4,4:4='c',<3>,1:4]:\"y\"> within boundaries of previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"x\">"
+    );
+});
+
+test("Replace range, then insert after right edge", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcccba");
+
+    // Act
+    rewriter.replace(2, 4, "x");
+    rewriter.insertAfter(4, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("abxyba");
+});
+
+test("Replace all", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcccba");
+
+    // Act
+    rewriter.replace(0, 6, "x");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("x");
+});
+
+test("Replace subset, then fetch", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abcccba");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replace(2, 4, "xyz");
+
+    // Assert
+    expect(rewriter.getText(new Interval(0, 6))).toEqual("abxyzba");
+});
+
+test("Replace, then replace superset (range overlapping)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcccba");
+
+    // Act
+    rewriter.replace(2, 4, "xyz");
+    rewriter.replace(3, 5, "foo");
+
+    // Assert
+    expect(() => rewriter.getText()).toThrow(
+        "replace op boundaries of <ReplaceOp@[@3,3:3='c',<3>,1:3]..[@5,5:5='b',<2>,1:5]:\"foo\"> overlap with previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"xyz\">"
+    );
+});
+
+test("Replace, then replace lower indexed superset (range overlapping)", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abcccba");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replace(2, 4, "xyz");
+    rewriter.replace(1, 3, "foo");
+
+    // Assert
+    expect(() => rewriter.getText()).toThrow(
+        "replace op boundaries of <ReplaceOp@[@1,1:1='b',<2>,1:1]..[@3,3:3='c',<3>,1:3]:\"foo\"> overlap with previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"xyz\">"
+    );
+});
+
+test("Replace single middle, then replace overlapping superset", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcba");
+
+    // Act
+    rewriter.replace(2, 2, "xyz");
+    rewriter.replace(0, 3, "foo");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("fooa");
+});
+
+test("Combine 2 inserts", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.insertBefore(0, "x");
+    rewriter.insertBefore(0, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("yxabc");
+});
+
+test("Combine 3 inserts", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.insertBefore(1, "x");
+    rewriter.insertBefore(0, "y");
+    rewriter.insertBefore(1, "z");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("yazxbc");
+});
+
+test("Combine insert on left with replace", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.replace(0, 2, "foo");
+    rewriter.insertBefore(0, "z");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("zfoo");
+});
+
+test("Combine insert on left with delete", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.delete(0, 2);
+    rewriter.insertBefore(0, "z");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("z");
+});
+
+
+test("Disjoint inserts", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.insertBefore(1, "x");
+    rewriter.insertBefore(2, "y");
+    rewriter.insertBefore(0, "z");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("zaxbyc");
+});
+
+
+test("Overlapping replace (1 of 4)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcc");
+
+    // Act
+    rewriter.replace(1, 2, "foo");
+    rewriter.replace(0, 3, "bar");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("bar");
+});
+
+test("Overlapping replace (2 of 4)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcc");
+
+    // Act
+    rewriter.replace(0, 3, "bar");
+    rewriter.replace(1, 2, "foo");
+
+    // Assert
+    expect(() => rewriter.getText()).toThrow(
+        "replace op boundaries of <ReplaceOp@[@1,1:1='b',<2>,1:1]..[@2,2:2='c',<3>,1:2]:\"foo\"> overlap with previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@3,3:3='c',<3>,1:3]:\"bar\">"
+    );
+});
+
+test("Overlapping replace (3 of 4)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcc");
+
+    // Act
+    rewriter.replace(1, 2, "foo");
+    rewriter.replace(0, 2, "bar");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("barc");
+});
+
+test("Overlapping replace (3 of 4)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcc");
+
+    // Act
+    rewriter.replace(1, 2, "foo");
+    rewriter.replace(1, 3, "bar");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("abar");
+});
+
+test("Drop identical replace", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcc");
+
+    // Act
+    rewriter.replace(1, 2, "foo");
+    rewriter.replace(1, 2, "foo");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("afooc");
+});
+
+test("Drop previously covered insert", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.insertBefore(1, "foo");
+    rewriter.replace(1, 2, "foo");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("afoofoo");
+});
+
+test("Leave alone disjoing insert (1 of 2)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcc");
+
+    // Act
+    rewriter.insertBefore(1, "x");
+    rewriter.replace(2, 3, "foo");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("axbfoo");
+});
+
+test("Leave alone disjoing insert (2 of 2)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abcc");
+
+    // Act
+    rewriter.replace(2, 3, "foo");
+    rewriter.insertBefore(1, "x");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("axbfoo");
+});
+
+test("Insert before token, then delete that token", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.insertBefore(2, "y");
+    rewriter.delete(2);
+
+    // Assert
+    expect(rewriter.getText()).toEqual("aby");
+});
+
+// Test for https://github.com/antlr/antlr4/issues/550
+test("Distinguish between insertAfter and insertBefore to preserve order (1 of 2)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "aa");
+
+    // Act
+    rewriter.insertBefore(0, "<b>");
+    rewriter.insertAfter(0, "</b>");
+    rewriter.insertBefore(1, "<b>");
+    rewriter.insertAfter(1, "</b>");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("<b>a</b><b>a</b>");
+});
+
+test("Distinguish between insertAfter and insertBefore to preserve order (2 of 2)", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "aa");
+
+    // Act
+    rewriter.insertBefore(0, "<p>");
+    rewriter.insertBefore(0, "<b>");
+    rewriter.insertAfter(0, "</p>");
+    rewriter.insertAfter(0, "</b>");
+    rewriter.insertBefore(1, "<b>");
+    rewriter.insertAfter(1, "</b>");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("<b><p>a</p></b><b>a</b>");
+});
+
+test("Preserve order of contiguous inserts", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "ab");
+
+    // Act
+    rewriter.insertBefore(0, "<p>");
+    rewriter.insertBefore(0, "<b>");
+    rewriter.insertBefore(0, "<div>");
+    rewriter.insertAfter(0, "</p>");
+    rewriter.insertAfter(0, "</b>");
+    rewriter.insertAfter(0, "</div>");
+    rewriter.insertBefore(1, "!");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("<div><b><p>a</p></b></div>!b");
+});
+
+test("Insert literals", () => {
+    // Arrange
+    const rewriter = getRewriter(abc, "abc");
+
+    // Act
+    rewriter.insertBefore(0, false);
+    rewriter.insertBefore(0, 0);
+    rewriter.insertBefore(0, {});
+    rewriter.insertBefore(0, []);
+    rewriter.insertBefore(0, "");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("[object Object]0falseabc");
 });
