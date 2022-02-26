@@ -135,3 +135,52 @@ test("getText() with different start/stop arguments (2 of 2)", () => {
     expect(rewriter.getText(new Interval(12, 18))).toEqual("2 * 0;// comment");
     expect(rewriter.getText(new Interval(0, 8))).toEqual("x = 0");
 });
+
+test("Replace middle index, twice", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replaceSingle(1, "x");
+    rewriter.replaceSingle(1, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("ayc");
+});
+
+test("Insert before, then replace twice", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.insertBefore(0, "_");
+    rewriter.replaceSingle(1, "x");
+    rewriter.replaceSingle(1, "y");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("_ayc");
+});
+
+test("Replace, then delete middle index", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replaceSingle(1, "x");
+    rewriter.delete(1);
+
+    // Assert
+    expect(rewriter.getText()).toEqual("ac");
+});

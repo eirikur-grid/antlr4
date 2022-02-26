@@ -67,6 +67,18 @@ class TokenStreamRewriter {
         rewrites.push(op);
     }
 
+    delete(from, to, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
+        if (typeof to === "undefined") {
+            to = from;
+        }
+        if (typeof from === "number") {
+            this.replace(from, to, "", programName);
+        }
+        else {
+            this.replace(from, to, "", programName);
+        }
+    }
+
     getProgram(name) {
         let is = this.programs.get(name);
         if (is == null) {
