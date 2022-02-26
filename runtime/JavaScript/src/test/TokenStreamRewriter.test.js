@@ -101,3 +101,33 @@ test("Replace index 0", () => {
     // Assert
     expect(rewriter.getText()).toEqual("xbc");
 });
+
+test("Replace last index", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replaceSingle(2, "x");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("abx");
+});
+
+test("Replace middle index", () => {
+    // Arrange
+    const chars = new antlr4.InputStream("abc");
+    const lexer = new abc(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    tokens.fill();
+    const rewriter = new antlr4.TokenStreamRewriter(tokens);
+
+    // Act
+    rewriter.replaceSingle(1, "x");
+
+    // Assert
+    expect(rewriter.getText()).toEqual("axc");
+});
