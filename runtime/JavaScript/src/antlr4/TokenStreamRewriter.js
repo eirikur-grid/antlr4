@@ -49,11 +49,13 @@ class TokenStreamRewriter {
             this.replace(index, index, text);
         }
         else {
+            // Wait, this is exactly as the line above
             this.replace(index, index, text);
         }
     }
 
     replace(from, to, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
+        // TODO, test with tokens? Do they have a tokenIndex attribute?
         if (typeof from !== "number") {
             from = from.tokenIndex;
         }
