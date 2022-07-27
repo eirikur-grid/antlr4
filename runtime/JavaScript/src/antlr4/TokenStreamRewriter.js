@@ -1,8 +1,8 @@
-const { Token } = require('./Token');
-const { Interval } = require("./IntervalSet");
+import Token from "./Token.js";
+import Interval from "./misc/Interval.js";
 
 // TODO: run this through eslint
-class TokenStreamRewriter {
+export default class TokenStreamRewriter {
     static DEFAULT_PROGRAM_NAME = "default";
 
     /**
@@ -365,5 +365,3 @@ class ReplaceOp extends RewriteOperation {
             ".." + this.tokens.get(this.lastIndex) + ":\"" + this.text + "\">";
     }
 }
-
-module.exports = { TokenStreamRewriter };
