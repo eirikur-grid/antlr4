@@ -11,3 +11,5 @@ abc: abc.g4 .antlr/antlr-4.10.1-complete.jar
 
 calc: calc.g4 .antlr/antlr-4.10.1-complete.jar
 	java -jar $(ANTLR_JAR) -Dlanguage=JavaScript -no-listener calc.g4 -o generatedCode/
+
+# TODO: fix imports in generated *.js files
