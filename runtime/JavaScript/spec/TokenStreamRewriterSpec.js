@@ -93,8 +93,8 @@ describe("TokenStreamRewriter", () => {
         // Assert
         expect(rewriter.getTokenStream().getText()).toEqual("x = 3 * 0;");
         expect(rewriter.getText()).toEqual("x = 0;");
-        expect(rewriter.getText(new Interval(0, 9))).toEqual("x = 0;");
-        expect(rewriter.getText(new Interval(4, 8))).toEqual("0");
+        expect(rewriter.getText(new antlr4.Interval(0, 9))).toEqual("x = 0;");
+        expect(rewriter.getText(new antlr4.Interval(4, 8))).toEqual("0");
     });
     
     it("getText() with different start/stop arguments (2 of 2)", () => {
@@ -107,15 +107,15 @@ describe("TokenStreamRewriter", () => {
         rewriter.replace(4, 8, "0"); // replace 3 * 0 with 0
     
         expect(rewriter.getText()).toEqual("x = 0 + 2 * 0;");
-        expect(rewriter.getText(new Interval(0, 17))).toEqual("x = 0 + 2 * 0;");
-        expect(rewriter.getText(new Interval(4, 8))).toEqual("0");
-        expect(rewriter.getText(new Interval(0, 8))).toEqual("x = 0");
-        expect(rewriter.getText(new Interval(12, 16))).toEqual("2 * 0");
+        expect(rewriter.getText(new antlr4.Interval(0, 17))).toEqual("x = 0 + 2 * 0;");
+        expect(rewriter.getText(new antlr4.Interval(4, 8))).toEqual("0");
+        expect(rewriter.getText(new antlr4.Interval(0, 8))).toEqual("x = 0");
+        expect(rewriter.getText(new antlr4.Interval(12, 16))).toEqual("2 * 0");
     
         rewriter.insertAfter(17, "// comment");
     
-        expect(rewriter.getText(new Interval(12, 18))).toEqual("2 * 0;// comment");
-        expect(rewriter.getText(new Interval(0, 8))).toEqual("x = 0");
+        expect(rewriter.getText(new antlr4.Interval(12, 18))).toEqual("2 * 0;// comment");
+        expect(rewriter.getText(new antlr4.Interval(0, 8))).toEqual("x = 0");
     });
     
     it("Replace middle index, twice", () => {
@@ -164,7 +164,7 @@ describe("TokenStreamRewriter", () => {
         rewriter.insertBefore(1, "0");
     
         // Assert
-        expect(() => rewriter.getText()).toThrow(
+        expect(() => rewriter.getText()).toThrowError(
             "insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]:\"x\">"
         );
     });
@@ -251,7 +251,7 @@ describe("TokenStreamRewriter", () => {
         rewriter.insertBefore(4, "y");
     
         // Assert
-        expect(() => rewriter.getText()).toThrow(
+        expect(() => rewriter.getText()).toThrowError(
             "insert op <InsertBeforeOp@[@4,4:4='c',<3>,1:4]:\"y\"> within boundaries of previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"x\">"
         );
     });
@@ -291,7 +291,7 @@ describe("TokenStreamRewriter", () => {
         rewriter.replace(2, 4, "xyz");
     
         // Assert
-        expect(rewriter.getText(new Interval(0, 6))).toEqual("abxyzba");
+        expect(rewriter.getText(new antlr4.Interval(0, 6))).toEqual("abxyzba");
     });
     
     it("Replace, then replace superset (range overlapping)", () => {
@@ -303,7 +303,7 @@ describe("TokenStreamRewriter", () => {
         rewriter.replace(3, 5, "foo");
     
         // Assert
-        expect(() => rewriter.getText()).toThrow(
+        expect(() => rewriter.getText()).toThrowError(
             "replace op boundaries of <ReplaceOp@[@3,3:3='c',<3>,1:3]..[@5,5:5='b',<2>,1:5]:\"foo\"> overlap with previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"xyz\">"
         );
     });
@@ -321,7 +321,7 @@ describe("TokenStreamRewriter", () => {
         rewriter.replace(1, 3, "foo");
     
         // Assert
-        expect(() => rewriter.getText()).toThrow(
+        expect(() => rewriter.getText()).toThrowError(
             "replace op boundaries of <ReplaceOp@[@1,1:1='b',<2>,1:1]..[@3,3:3='c',<3>,1:3]:\"foo\"> overlap with previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"xyz\">"
         );
     });
@@ -423,7 +423,7 @@ describe("TokenStreamRewriter", () => {
         rewriter.replace(1, 2, "foo");
     
         // Assert
-        expect(() => rewriter.getText()).toThrow(
+        expect(() => rewriter.getText()).toThrowError(
             "replace op boundaries of <ReplaceOp@[@1,1:1='b',<2>,1:1]..[@2,2:2='c',<3>,1:2]:\"foo\"> overlap with previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@3,3:3='c',<3>,1:3]:\"bar\">"
         );
     });
