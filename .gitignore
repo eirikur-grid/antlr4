@@ -109,6 +109,9 @@ runtime/PHP
 # Swift binaries
 .build/
 
+# Code coverage reports
+coverage/
+
 # Cpp generated build files
 runtime/Cpp/CMakeCache.txt
 runtime/Cpp/CMakeFiles/
