@@ -44,18 +44,11 @@ export default class TokenStreamRewriter {
         rewrites.push(op);
     }
 
-    replaceSingle(index, text) {
-        if (typeof index === "number") {
-            this.replace(index, index, text);
-        }
-        else {
-            // Wait, this is exactly as the line above
-            this.replace(index, index, text);
-        }
+    replaceSingle(tokenOrIndex, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
+        this.replace(tokenOrIndex, tokenOrIndex, text, programName);
     }
 
     replace(from, to, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
-        // TODO, test with tokens? Do they have a tokenIndex attribute?
         if (typeof from !== "number") {
             from = from.tokenIndex;
         }
@@ -74,12 +67,7 @@ export default class TokenStreamRewriter {
         if (typeof to === "undefined") {
             to = from;
         }
-        if (typeof from === "number") {
-            this.replace(from, to, "", programName);
-        }
-        else {
-            this.replace(from, to, "", programName);
-        }
+        this.replace(from, to, null, programName);
     }
 
     getProgram(name) {
@@ -127,7 +115,7 @@ export default class TokenStreamRewriter {
         }
 
         if (rewrites == null || rewrites.length === 0) {
-            return this.tokens.getText(interval); // no instructions to execute
+            return this.tokens.getText(new Interval(start, stop)); // no instructions to execute
         }
 
         let buf = [];
@@ -308,10 +296,6 @@ class RewriteOperation {
         this.instructionIndex = instructionIndex;
         this.index = index;
         this.text = text === undefined ? "" : text;
-    }
-
-    execute(buf) {
-        return this.index;
     }
 
     toString() {

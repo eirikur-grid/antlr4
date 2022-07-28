@@ -15,6 +15,7 @@ function getRewriter(lexerClass, input) {
     return new antlr4.TokenStreamRewriter(tokens);
 }
 
+// TODO: change test names to BDD statements
 describe("TokenStreamRewriter", () => {
     it("Insert before index 0", () => {
         // Arrange
@@ -36,6 +37,41 @@ describe("TokenStreamRewriter", () => {
     
         // Assert
         expect(rewriter.getText()).toEqual("abcx");
+    });
+
+    it("inserts 'x' after the 'b' token", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+        const bToken = rewriter.tokens.get(1);
+    
+        // Act
+        rewriter.insertAfter(bToken, "x");
+    
+        // Assert
+        expect(rewriter.getText()).toEqual("abxc");
+    });
+
+    it("inserts 'x' at the end if the index is out of bounds", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+    
+        // Act
+        rewriter.insertAfter(100, "x");
+    
+        // Assert
+        expect(rewriter.getText()).toEqual("abcx");
+    });
+
+    it("inserts 'x' before the 'b' token", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+        const bToken = rewriter.tokens.get(1);
+    
+        // Act
+        rewriter.insertBefore(bToken, "x");
+    
+        // Assert
+        expect(rewriter.getText()).toEqual("axbc");
     });
     
     it("Insert before and after middle index", () => {
@@ -168,6 +204,20 @@ describe("TokenStreamRewriter", () => {
             "insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]:\"x\">"
         );
     });
+
+    it("throws an error if an attempt is made to insert into a deleted range", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+    
+        // Act
+        rewriter.delete(0, 2);
+        rewriter.insertBefore(1, "0");
+    
+        // Assert
+        expect(() => rewriter.getText()).toThrowError(
+            "insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous <DeleteOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]>"
+        );
+    });
     
     it("Insert then replace same index", () => {
         // Arrange
@@ -266,6 +316,36 @@ describe("TokenStreamRewriter", () => {
     
         // Assert
         expect(rewriter.getText()).toEqual("abxyba");
+    });
+
+    it("replaces a token range", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abcba");
+        const bToken = rewriter.tokens.get(1);
+        const dToken = rewriter.tokens.get(3);
+        
+        // Act
+        rewriter.replace(bToken, dToken, "x");
+
+        // Assert
+        expect(rewriter.getText()).toEqual("axa");
+    });
+
+    it("throws an error when replace is given an invalid range", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+        const badRanges = [
+            [1, 0],   // from > to
+            [-1, 1],  // from is negative
+            [1, -1],  // to is negative
+            [-2, -1], // both are negative
+            [1, 4]    // to is out of bounds
+        ];
+        
+        // Act/Assert
+        for (const [from, to] of badRanges) {
+            expect(() => rewriter.replace(from, to, "x")).toThrow();
+        }
     });
     
     it("Replace all", () => {
@@ -511,6 +591,18 @@ describe("TokenStreamRewriter", () => {
         // Assert
         expect(rewriter.getText()).toEqual("aby");
     });
+
+    it("deletes the 'a' token", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+        const aToken = rewriter.tokens.get(0);
+    
+        // Act
+        rewriter.delete(aToken);
+    
+        // Assert
+        expect(rewriter.getText()).toEqual("bc");
+    });
     
     // Test for https://github.com/antlr/antlr4/issues/550
     it("Distinguish between insertAfter and insertBefore to preserve order (1 of 2)", () => {
@@ -574,5 +666,67 @@ describe("TokenStreamRewriter", () => {
         // Assert
         expect(rewriter.getText()).toEqual("[object Object]0falseabc");
     });
+
+    it("returns the original input if no rewrites have occurred", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
     
+        // Act
+        const result = rewriter.getText();
+    
+        // Assert
+        expect(result).toEqual("abc");
+    });
+
+    it("segments operations by program name", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+    
+        // Act
+        rewriter.insertBefore(0, "b", "P1");
+        rewriter.insertAfter(0, "c", "P2");
+        rewriter.replaceSingle(2, "b", "P2");
+        
+        // Assert
+        expect(rewriter.getText("P1")).toEqual("babc");
+        expect(rewriter.getText("P2")).toEqual("acbb");
+    });
+
+    it("doesn't make a fuss if getText is supplied with an interval that exceeds the token range", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abc");
+    
+        // Act
+        const unmodified = rewriter.getText(new antlr4.Interval(-1, 3));
+        rewriter.insertAfter(2, "a");
+        const modified = rewriter.getText(new antlr4.Interval(0, 200));
+        
+        // Assert
+        expect(unmodified).toEqual("abc");
+        expect(modified).toEqual("abca");
+    });
+
+    it("ignores inserts that occur within a removed range", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abcba");
+    
+        // Act
+        rewriter.insertAfter(2, "c");
+        rewriter.delete(2, 3);
+        
+        // Assert
+        expect(rewriter.getText()).toEqual("aba");
+    });
+
+    it("handles overlapping delete ranges", () => {
+        // Arrange
+        const rewriter = getRewriter(abc, "abcba");
+    
+        // Act
+        rewriter.delete(1, 3);
+        rewriter.delete(2, 4);
+        
+        // Assert
+        expect(rewriter.getText()).toEqual("a");
+    });
 });
