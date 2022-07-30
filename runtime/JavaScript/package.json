@@ -41,7 +41,8 @@
   "scripts": {
     "build": "webpack",
     "test": "jasmine",
-    "coverage": "c8 jasmine"
+    "coverage": "c8 jasmine",
+    "lint": "eslint src/antlr4/"
   },
   "engines": {
     "node": ">=16"
