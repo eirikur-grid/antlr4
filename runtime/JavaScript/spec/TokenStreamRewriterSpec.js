@@ -662,6 +662,7 @@ describe("TokenStreamRewriter", () => {
         rewriter.insertBefore(0, {});
         rewriter.insertBefore(0, []);
         rewriter.insertBefore(0, "");
+        rewriter.insertBefore(0, null);
     
         // Assert
         expect(rewriter.getText()).toEqual("[object Object]0falseabc");
