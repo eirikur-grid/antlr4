@@ -85,6 +85,7 @@ nbactions*.xml
 tmp/
 **/generatedCode/*.interp
 **/generatedCode/*.tokens
+**/generatedCode/*.bak
 
 # Configurable build files
 bilder.py
