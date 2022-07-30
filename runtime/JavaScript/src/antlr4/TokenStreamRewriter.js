@@ -275,18 +275,7 @@ export default class TokenStreamRewriter {
 
     /** Get all operations before an index of a particular kind */
     getKindOfOps(rewrites, kind, before) {
-        let ops = [];
-        for (let i = 0; i < before && i < rewrites.length; i++) {
-            let op = rewrites[i];
-            if (op == null) {
-                // ignore deleted
-                continue;
-            }
-            if (op instanceof kind) {
-                ops.push(op);
-            }
-        }
-        return ops;
+        return rewrites.slice(0, before).filter(op => op && op instanceof kind);
     }
 }
 
