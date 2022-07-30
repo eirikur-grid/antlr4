@@ -1,8 +1,8 @@
 import Token from "./Token.js";
 import Interval from "./misc/Interval.js";
 
-// TODO: run this through eslint
 export default class TokenStreamRewriter {
+    // eslint-disable-next-line no-undef
     static DEFAULT_PROGRAM_NAME = "default";
 
     /**
