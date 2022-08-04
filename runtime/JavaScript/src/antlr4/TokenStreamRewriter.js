@@ -1,23 +1,40 @@
 import Token from "./Token.js";
 import Interval from "./misc/Interval.js";
 
+/**
+ * @typedef {import("./CommonTokenStream").default} CommonTokenStream
+ * @typedef {Array<RewriteOperation | undefined>} Rewrites
+ * @typedef {Object | null | undefined} Text
+ */
+
 export default class TokenStreamRewriter {
     // eslint-disable-next-line no-undef
     static DEFAULT_PROGRAM_NAME = "default";
 
     /**
-     * @param {import("./CommonTokenStream")} tokens 
+     * @param {CommonTokenStream} tokens The token stream to modify
      */
     constructor(tokens) {
         this.tokens = tokens;
+        /** @type {Map<string, Rewrites>} */
         this.programs = new Map();
     }
 
+    /**
+     * @returns {CommonTokenStream}
+     */
     getTokenStream() {
         return this.tokens;
     }
 
+    /**
+     * Insert the supplied text after the specified token (or token index)
+     * @param {Token | number} tokenOrIndex
+     * @param {Text} text
+     * @param {string} [programName]
+     */
     insertAfter(tokenOrIndex, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
+        /** @type {number} */
         let index;
         if (typeof tokenOrIndex === "number") {
             index = tokenOrIndex;
@@ -31,7 +48,14 @@ export default class TokenStreamRewriter {
         rewrites.push(op);
     }
 
+    /**
+     * Insert the supplied text before the specified token (or token index)
+     * @param {Token | number} tokenOrIndex
+     * @param {Text} text
+     * @param {string} [programName]
+     */
     insertBefore(tokenOrIndex, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
+        /** @type {number} */
         let index;
         if (typeof tokenOrIndex === "number") {
             index = tokenOrIndex;
@@ -44,10 +68,23 @@ export default class TokenStreamRewriter {
         rewrites.push(op);
     }
 
+    /**
+     * Replace the specified token with the supplied text
+     * @param {Token | number} tokenOrIndex
+     * @param {Text} text
+     * @param {string} [programName]
+     */
     replaceSingle(tokenOrIndex, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
         this.replace(tokenOrIndex, tokenOrIndex, text, programName);
     }
 
+    /**
+     * Replace the specified range of tokens with the supplied text
+     * @param {Token | number} from
+     * @param {Token | number} to
+     * @param {Text} text
+     * @param {string} [programName]
+     */
     replace(from, to, text, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
         if (typeof from !== "number") {
             from = from.tokenIndex;
@@ -63,6 +100,12 @@ export default class TokenStreamRewriter {
         rewrites.push(op);
     }
 
+    /**
+     * Delete the specified range of tokens
+     * @param {number | Token} from
+     * @param {number | Token} to
+     * @param {string} [programName]
+     */
     delete(from, to, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
         if (typeof to === "undefined") {
             to = from;
@@ -70,6 +113,10 @@ export default class TokenStreamRewriter {
         this.replace(from, to, null, programName);
     }
 
+    /**
+     * @param {string} name
+     * @returns {Rewrites}
+     */
     getProgram(name) {
         let is = this.programs.get(name);
         if (is == null) {
@@ -78,6 +125,10 @@ export default class TokenStreamRewriter {
         return is;
     }
 
+    /**
+     * @param {string} name
+     * @returns {Rewrites}
+     */
     initializeProgram(name) {
         const is = [];
         this.programs.set(name, is);
@@ -85,10 +136,10 @@ export default class TokenStreamRewriter {
     }
 
     /**
-     * 
+     * Return the text from the original tokens altered per the instructions given to this rewriter
      * @param {Interval | string} [intervalOrProgram]
      * @param {string} [programName]
-     * @returns 
+     * @returns {string}
      */
     getText(intervalOrProgram, programName = TokenStreamRewriter.DEFAULT_PROGRAM_NAME) {
         let interval;
@@ -157,6 +208,10 @@ export default class TokenStreamRewriter {
         return buf.join("");
     }
 
+    /**
+     * @param {Rewrites} rewrites
+     * @returns {Map<number, RewriteOperation>} a map from token index to operation
+     */
     reduceToSingleOperationPerIndex(rewrites) {
         // WALK REPLACES
         for (let i = 0; i < rewrites.length; i++) {
@@ -247,6 +302,7 @@ export default class TokenStreamRewriter {
             }
         }
 
+        /** @type {Map<number, RewriteOperation>} */
         let m = new Map();
         for (let op of rewrites) {
             if (op == null) {
@@ -261,6 +317,11 @@ export default class TokenStreamRewriter {
         return m;
     }
 
+    /**
+     * @param {Text} a
+     * @param {Text} b
+     * @returns {string}
+     */
     catOpText(a, b) {
         let x = "";
         let y = "";
@@ -273,13 +334,24 @@ export default class TokenStreamRewriter {
         return x + y;
     }
 
-    /** Get all operations before an index of a particular kind */
+    /**
+     * Get all operations before an index of a particular kind
+     * @param {Rewrites} rewrites
+     * @param {any} kind
+     * @param {number} before
+     */
     getKindOfOps(rewrites, kind, before) {
         return rewrites.slice(0, before).filter(op => op && op instanceof kind);
     }
 }
 
 class RewriteOperation {
+    /**
+     * @param {CommonTokenStream} tokens
+     * @param {number} index
+     * @param {number} instructionIndex
+     * @param {Text} text
+     */
     constructor(tokens, index, instructionIndex, text) {
         this.tokens = tokens;
         this.instructionIndex = instructionIndex;
@@ -297,12 +369,25 @@ class RewriteOperation {
 }
 
 class InsertBeforeOp extends RewriteOperation {
+    /**
+     * @param {CommonTokenStream} tokens
+     * @param {number} index
+     * @param {number} instructionIndex
+     * @param {Text} text
+     */
     constructor(tokens, index, instructionIndex, text) {
         super(tokens, index, instructionIndex, text);
     }
 
+    /**
+     * @param {string[]} buf
+     * @returns {number} the index of the next token to operate on
+     */
     execute(buf) {
-        buf.push(this.text.toString());
+        if (this.text) {
+            buf.push(this.text.toString());
+        }
+        
         if (this.tokens.get(this.index).type !== Token.EOF) {
             buf.push(String(this.tokens.get(this.index).text));
         }
@@ -311,19 +396,36 @@ class InsertBeforeOp extends RewriteOperation {
 }
 
 class InsertAfterOp extends InsertBeforeOp {
+    /**
+     * @param {CommonTokenStream} tokens
+     * @param {number} index
+     * @param {number} instructionIndex
+     * @param {Text} text
+     */
     constructor(tokens, index, instructionIndex, text) {
         super(tokens, index + 1, instructionIndex, text); // insert after is insert before index+1
     }
 }
 
 class ReplaceOp extends RewriteOperation {
+    /**
+     * @param {CommonTokenStream} tokens
+     * @param {number} from
+     * @param {number} to
+     * @param {number} instructionIndex
+     * @param {Text} text
+     */
     constructor(tokens, from, to, instructionIndex, text) {
         super(tokens, from, instructionIndex, text);
         this.lastIndex = to;
     }
 
+    /**
+     * @param {string[]} buf
+     * @returns {number} the index of the next token to operate on
+     */
     execute(buf) {
-        if (this.text != null) {
+        if (this.text) {
             buf.push(this.text.toString());
         }
         return this.lastIndex + 1;
