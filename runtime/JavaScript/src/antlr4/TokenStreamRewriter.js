@@ -4,7 +4,7 @@ import Interval from "./misc/Interval.js";
 /**
  * @typedef {import("./CommonTokenStream").default} CommonTokenStream
  * @typedef {Array<RewriteOperation | undefined>} Rewrites
- * @typedef {Object | null | undefined} Text
+ * @typedef {unknown} Text
  */
 
 export default class TokenStreamRewriter {
