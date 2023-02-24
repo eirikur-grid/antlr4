@@ -8,8 +8,8 @@ ANTLR_JAR = .antlr/antlr-4.12.0-complete.jar
 
 abc: abc.g4 .antlr/antlr-4.12.0-complete.jar
 	java -jar $(ANTLR_JAR) -Dlanguage=JavaScript -no-listener abc.g4 -o generatedCode/
-	sed -i.bak "s/import antlr4 from 'antlr4'/import antlr4 from '..\/..\/src\/antlr4\/index.node.js'/" generatedCode/abc.js
+	sed -i.bak "s/import antlr4 from 'antlr4'/import antlr4 from '..\/..\/..\/src\/antlr4\/index.node.js'/" generatedCode/abc.js
 
 calc: calc.g4 .antlr/antlr-4.12.0-complete.jar
 	java -jar $(ANTLR_JAR) -Dlanguage=JavaScript -no-listener calc.g4 -o generatedCode/
-	sed -i.bak "s/import antlr4 from 'antlr4'/import antlr4 from '..\/..\/src\/antlr4\/index.node.js'/" generatedCode/calc.js
+	sed -i.bak "s/import antlr4 from 'antlr4'/import antlr4 from '..\/..\/..\/src\/antlr4\/index.node.js'/" generatedCode/calc.js
