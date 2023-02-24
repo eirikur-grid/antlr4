@@ -1,6 +1,6 @@
-// Generated from abc.g4 by ANTLR 4.10.1
+// Generated from abc.g4 by ANTLR 4.12.0
 // jshint ignore: start
-import antlr4 from '../../src/antlr4/index.js';
+import antlr4 from '../../src/antlr4/index.node.js';
 
 
 const serializedATN = [4,0,3,13,6,-1,2,0,7,0,2,1,7,1,2,2,7,2,1,0,1,0,1,1,
@@ -25,10 +25,6 @@ export default class abc extends antlr4.Lexer {
     constructor(input) {
         super(input)
         this._interp = new antlr4.atn.LexerATNSimulator(this, atn, decisionsToDFA, new antlr4.atn.PredictionContextCache());
-    }
-
-    get atn() {
-        return atn;
     }
 }
 
